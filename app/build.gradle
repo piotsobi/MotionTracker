@@ -1,13 +1,35 @@
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        // replace with the current version of the Android plugin
+        classpath 'com.android.tools.build:gradle:1.0.0'
+        // the latest version of the android-apt plugin
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+    }
+}
+
 apply plugin: 'com.android.application'
+apply plugin: 'android-apt'
+
+
+apt {
+    arguments {
+        resourcePackageName android.defaultConfig.applicationId
+        androidManifestFile variant.outputs[0].processResources.manifestFile
+    }
+}
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 18
     buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "com.demon.motiontracker"
-        minSdkVersion 19
-        targetSdkVersion 21
+        minSdkVersion 14
+        targetSdkVersion 18
         versionCode 1
         versionName "1.0"
     }
@@ -20,6 +42,8 @@ android {
 }
 
 dependencies {
+    compile 'com.android.support:appcompat-v7:18+'
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:22.0.0'
+    apt "com.googlecode.androidannotations:androidannotations:2.7.1"
+    compile 'com.googlecode.androidannotations:androidannotations-api:2.7.1'
 }
