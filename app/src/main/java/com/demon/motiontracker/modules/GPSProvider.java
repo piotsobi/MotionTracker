@@ -14,6 +14,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.demon.motiontracker.MainActivity;
 import com.demon.motiontracker.R;
 
 import org.apache.http.HttpResponse;
@@ -23,7 +24,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 /**
  * Created by Piotr on 2015-04-20.
@@ -36,7 +41,7 @@ public class GPSProvider extends AsyncTask<String, Integer, Integer> implements 
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000 * 6 * 1; // 1 minute 6 sec
 
-    private Location mLocation;
+    private Location mLocation = null;
     protected LocationManager mLocationManager;
     String mLong, mLat;
     String URL;
@@ -48,6 +53,7 @@ public class GPSProvider extends AsyncTask<String, Integer, Integer> implements 
     double longtmp = 0;
     double latitmp = 0;
     boolean isGPSEnabled, isNetworkEnabled;
+    boolean canGetLocation;
     private String android_id;
 
     public GPSProvider(Context context){
@@ -56,7 +62,7 @@ public class GPSProvider extends AsyncTask<String, Integer, Integer> implements 
                 Settings.Secure.ANDROID_ID);
         this.context = context;
     }
-    public void getLocation(){
+    public Location getLocation(){
         try {
             mLocationManager = (LocationManager) context
                     .getSystemService(Context.LOCATION_SERVICE);
@@ -71,42 +77,46 @@ public class GPSProvider extends AsyncTask<String, Integer, Integer> implements 
 
             if (!isGPSEnabled) {
                 // No network provider is enabled
+                this.canGetLocation=false;
                 longitude = 77.777;
                 latitude = 88.982;
             } else {
 
 
                 // If GPS enabled, get latitude/longitude using GPS Services
-                if (isGPSEnabled) {
-                    if (mLocation == null) {
 
+                    if (mLocation == null) {
+                        this.canGetLocation = true;
                         mLocationManager.requestLocationUpdates(
                                 LocationManager.GPS_PROVIDER,
                                 MIN_TIME_BW_UPDATES,
                                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+
                         Log.d("GPS Enabled", "GPS Enabled");
                         if (mLocationManager != null) {
                             mLocation = mLocationManager
                                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             if (mLocation != null) {
+
                                 latitude = mLocation.getLatitude();
                                 longitude = mLocation.getLongitude();
+                                Log.d("LAT SET", "LONG SET");
                             }
                         }
                     }
-                }
+
             }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-
+    return mLocation;
     }
-    public void doStuff(){
+    public void doStuff() throws FileNotFoundException {
 
         //longitude = mLocation.getLongitude();
         //latitude = mLocation.getLatitude();
-        getLocation();
+        /*getLocation();
         if ((longtmp == longtmp) && (latitmp == latitude)){
 
         }
@@ -114,7 +124,24 @@ public class GPSProvider extends AsyncTask<String, Integer, Integer> implements 
             encodeBase64(longitude, latitude);
         }
         Log.d("DO STUFF", " ");
+        */
+        getLocation();
+        if(this.canGetLocation && (mLocation != null)){
 
+            double tmplong = mLocation.getLongitude();
+            double tmplat = mLocation.getLatitude();
+            if(MainActivity.mFile.exists()) {
+                String gspString = "GPS: LONG "+tmplong+"; LAT "+tmplat + System.getProperty("line.separator");
+                FileOutputStream fo = new FileOutputStream(MainActivity.mFile);
+                try {
+                    fo.write(gspString.getBytes());
+                    fo.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
     }
 
 
@@ -130,7 +157,7 @@ public class GPSProvider extends AsyncTask<String, Integer, Integer> implements 
         baseStringLong = Base64.encodeToString(longi.getBytes(), Base64.NO_PADDING + Base64.URL_SAFE + Base64.NO_WRAP);
         baseStringLat = Base64.encodeToString(lati.getBytes(), Base64.URL_SAFE + Base64.NO_PADDING + Base64.NO_WRAP);
         //Toast.makeText(context, "STRING " + string + " base " + baseString, Toast.LENGTH_SHORT).show();
-        URL = "http://student.agh.edu.pl/~mmankows/cgi-bin/track.cgi?d_id=" + android_id + "&lon=" + baseStringLong + "%3D&lat=" + baseStringLat + "%3D";
+        URL = "http://student.agh.edu.pl/~mmankows/cgi/track.cgi?d_id=" + android_id + "&lon=" + baseStringLong + "%3D&lat=" + baseStringLat + "%3D";
         //Toast.makeText(context, URL, Toast.LENGTH_SHORT).show();
 
 
@@ -209,7 +236,11 @@ public class GPSProvider extends AsyncTask<String, Integer, Integer> implements 
     @Override
     protected Integer doInBackground(String... strings) {
         //Toast.makeText(context, strings[0], Toast.LENGTH_SHORT).show();
-        doStuff();
+        try {
+            doStuff();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
         return null;
     }

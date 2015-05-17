@@ -18,6 +18,7 @@ public class GPSHandler{
 
     //private Handler mHandler;
     //private Runnable mRunnable;
+    Timer timer;
     public String deviceID;
     GPSProvider gps;
     int i =0;
@@ -27,7 +28,7 @@ public class GPSHandler{
         this.context = context;
     }
     public void synchroGPSLocation(){
-        Timer timer = new Timer();
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
 
@@ -42,9 +43,12 @@ public class GPSHandler{
                 }
 
             }
-        }, 0, 60000);
+        }, 0, 5000);
     }
+    public void stopTimer(){
+        timer.cancel();
 
+    }
 
 
 }
