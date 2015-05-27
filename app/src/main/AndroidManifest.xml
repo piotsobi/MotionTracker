@@ -22,7 +22,10 @@
         </activity>
         <activity android:name=".GPSTest_"></activity>
 
-
+        <service
+            android:name=".modules.GPSService"
+            android:label="My Service" >
+        </service>
     </application>
 
 </manifest>

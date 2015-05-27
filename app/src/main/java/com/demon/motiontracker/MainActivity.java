@@ -3,12 +3,11 @@ package com.demon.motiontracker;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.location.GpsStatus;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Vibrator;
 import android.provider.Settings;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,9 +15,8 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.demon.motiontracker.modules.GPSHandler;
-import com.demon.motiontracker.modules.GPSProvider;
-import com.googlecode.androidannotations.annotations.AfterViews;
+//import com.demon.motiontracker.modules.GPSProvider;
+import com.demon.motiontracker.modules.GPSService;
 import com.googlecode.androidannotations.annotations.Click;
 import com.googlecode.androidannotations.annotations.EActivity;
 import com.googlecode.androidannotations.annotations.SystemService;
@@ -33,7 +31,7 @@ import java.io.File;
 import java.io.IOException;
 
 @EActivity(R.layout.activity_main)
-public class MainActivity extends Activity implements GpsStatus.Listener {
+public class MainActivity extends Activity {
 
     @ViewById
     Button buttonOpenGPS;
@@ -43,16 +41,20 @@ public class MainActivity extends Activity implements GpsStatus.Listener {
     Vibrator mVib;
     boolean mGpsStarted = false;
     // GPSTracker class
-    GPSProvider gps;
+    //GPSProvider gps;
+    GPSService mGps;;
     HttpClient mClient;
     String URL;
-    GPSHandler gpsHandler;
+    //GPSHandler gpsHandler;
+    @SystemService
+    LocationManager mLocationManager;
     public static File mFile;
     boolean isStarted = false;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
+        mGps = new GPSService();
         mFile = new File(Environment.getExternalStorageDirectory() + File.separator + "gpsTest.txt");
         try {
             mFile.createNewFile();
@@ -102,23 +104,23 @@ public class MainActivity extends Activity implements GpsStatus.Listener {
     void btnGetLocationClicked(){
         //gps = new GPSProvider(MainActivity.this);
         //gps.dts(69.696969);
+        init();
         if(mGpsStarted) {
             if (!isStarted) {
-                gpsHandler = new GPSHandler(MainActivity.this);
-                gpsHandler.synchroGPSLocation();
+                startService(new Intent(this, GPSService.class));
                 isStarted = true;
                 btnGetLocation.setBackgroundColor(Color.parseColor("#cdc9c9"));
                 btnGetLocation.setText("STOP");
                 Toast.makeText(MainActivity.this, "Tracking rozpoczęty", Toast.LENGTH_SHORT).show();
             } else {
-                gpsHandler.stopTimer();
+                mGps.stopTracking();
                 btnGetLocation.setBackgroundColor(Color.parseColor("#00AFD1"));
                 btnGetLocation.setText("START");
                 Toast.makeText(MainActivity.this, "Tracking zakonczony", Toast.LENGTH_SHORT).show();
 
             }
         } else{
-
+            Toast.makeText(MainActivity.this, "Wlacz GPS", Toast.LENGTH_SHORT).show();
         }
        /* String android_id = Settings.Secure.getString(MainActivity.this.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
@@ -199,15 +201,11 @@ public class MainActivity extends Activity implements GpsStatus.Listener {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onGpsStatusChanged(int i) {
-        // GPS_EVENT_STARTED_STOPED
-        switch(i){
-            case GpsStatus.GPS_EVENT_STARTED:
-                mGpsStarted = true;
-                break;
-            case GpsStatus.GPS_EVENT_STOPPED:
-                mGpsStarted = false;
-        }
+
+    void init(){
+
+        mGpsStarted = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
+
+
 }
