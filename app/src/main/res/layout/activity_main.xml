@@ -20,7 +20,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start"
+        android:text="Rozpocznij"
         style="@style/button"
         android:layout_weight="1.00"
         android:id="@+id/btnGetLocation"
@@ -41,7 +41,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SEND ID"
+        android:text="Otwórz mapę"
         style="@style/button"
         android:id="@+id/btnSendID"
         android:layout_alignTop="@+id/btnGetLocation"
@@ -50,14 +50,4 @@
         android:layout_weight="0.99" />
 </LinearLayout>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Open GPS file"
-        style="@style/button"
-        android:background="#cdc9c9"
-        android:id="@+id/buttonOpenGPS"
-        android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/linearLayout"
-        android:layout_alignEnd="@+id/linearLayout" />
 </RelativeLayout>

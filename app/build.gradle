@@ -8,6 +8,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:1.0.0'
         // the latest version of the android-apt plugin
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+
     }
 }
 
@@ -46,4 +47,5 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     apt "com.googlecode.androidannotations:androidannotations:2.7.1"
     compile 'com.googlecode.androidannotations:androidannotations-api:2.7.1'
+    compile 'com.google.code.gson:gson:1.7.2'
 }
