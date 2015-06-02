@@ -47,6 +47,7 @@ public class GPSService extends Service implements LocationListener {
     String token;// = "1db532dc44091f4061f8d0a10f560f62";
     Coordinates mCoord = null;
     Tracker mTracker;
+    boolean check = true;
     SharedPreferences mPref;
     @Override
     public void onCreate() {
@@ -73,18 +74,25 @@ public class GPSService extends Service implements LocationListener {
         float latitude = (float) (location.getLatitude());
         float longitude = (float) (location.getLongitude());
         long time = location.getTime();
+
         Date mDate = new Date(time);
         Log.i("TIME", ""+ mSimpleDateFormat.format(mDate));
        // Log.i("PREFERENCJA", mPref.getString("token",null));
-        if(mCoord == null){
+
         mCoord = new Coordinates(latitude,longitude,mSimpleDateFormat.format(mDate));
-        mTracker = new Tracker(MainActivity.token, android_id, mCoord);}
+        if(check) {
+            mTracker = new Tracker(mPref.getString("token", "0"), android_id, mCoord);
+        }
 
         if(checkInternetStatus()) {
+
             jsonGson.jsonTracker(mTracker); //wysylanie
             Log.i("STATUS", "ONLINE");
+            mTracker = new Tracker(mPref.getString("token","0"), android_id, mCoord);
+
         }
         else{
+            check = false;
             mTracker.addCoord(mCoord);
             Log.i("STATUS", "OFFLINE");
         }

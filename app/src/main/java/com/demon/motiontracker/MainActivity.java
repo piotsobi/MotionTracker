@@ -73,16 +73,10 @@ public class MainActivity extends Activity {
             Log.e("nie utworzono pliku", "error");
             e.printStackTrace();
         }
-        //Log.i("TOKEN", mPref.getString("token", null));
 
-        if(mPref.contains("firstrun")){
-            Log.i("COS KURWA NIE GRA", "ANI TROCHE");
-        }
+
         if(mPref.getBoolean("firstrun",true)){
             alertDialog();
-        }else{
-            mPref.edit().putString("kurwa","chuj").commit();
-            Toast.makeText(MainActivity.this,"COJESTKURWA",Toast.LENGTH_LONG).show();
         }
 
 
@@ -118,42 +112,30 @@ public class MainActivity extends Activity {
 
     @Click(R.id.btnGetLocation)
     void btnGetLocationClicked(){
-        //gps = new GPSProvider(MainActivity.this);
-        //gps.dts(69.696969);
         init();
         if(mGpsStarted) {
             if (!isStarted) {
-                //Log.i("TOKENKUTASIARZ", token);
-
-                //mPref.edit().putString("token",token).commit();
-
-                Log.i("KURWACHUJ", mPref.getString("kurwa","cipka"));
                 if(mPref.getBoolean("firstrun",true)) {
                     Log.i("COMMIT", "TOKEN");
                     mPref.edit().putString("token", token).commit();
-                    Log.i("DODANE", "KURWESTWO");
-                    Log.i("TOKENIARACWANIARA", mPref.getString("token", "0"));
                     mPref.edit().putBoolean("firstrun",false);
                 }
-
-                //token = mPref.getString("token","0");
                 if(mPref.contains("token")) {
                     Log.i("PREF", mPref.getString("token", "0"));
                 }
                 Intent mIntent = new Intent(this, GPSService.class);
                 Log.i("TOKEN", mPref.getString("token", "0"));
-               // startService(mIntent);
-                //isStarted = true;
+                startService(mIntent);
+                isStarted = true;
                 btnGetLocation.setBackgroundColor(Color.parseColor("#cdc9c9"));
                 btnGetLocation.setText("STOP");
                 Toast.makeText(MainActivity.this, "Tracking rozpoczęty", Toast.LENGTH_SHORT).show();
             } else {
-                //mGps.stopTracking();
                 stopService(new Intent(this, GPSService.class));
                 btnGetLocation.setBackgroundColor(Color.parseColor("#00AFD1"));
                 btnGetLocation.setText("START");
                 Toast.makeText(MainActivity.this, "Tracking zakonczony", Toast.LENGTH_SHORT).show();
-
+                isStarted = false;
             }
         } else{
             Toast.makeText(MainActivity.this, "Włacz GPS", Toast.LENGTH_SHORT).show();
